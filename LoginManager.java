@@ -41,6 +41,8 @@ public class LoginManager {
 
 
 
+    //this main method is just here to instantiate objects and pass the objects to the Hashmap users. 
+    //Once a Login page GUI class/method is made that will take in the input, instantiate the objects, and pass those objects is made, it will be tossed away.
     public static void main(String[] args) {
 
         for(int i=0; i<2; i++){
