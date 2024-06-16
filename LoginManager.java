@@ -17,7 +17,10 @@ public class LoginManager {
         return ActiveUser;
     }
 
-    
+    public static void setActiveUser(User activeUser){
+        ActiveUser = activeUser; 
+    }
+
 
     public static void userLogin(){
         System.out.println("Enter Username");
