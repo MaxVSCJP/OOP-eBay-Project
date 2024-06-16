@@ -17,7 +17,10 @@ public class LoginManager {
         return ActiveUser;
     }
 
-    
+    public static void setActiveUser(User activeUser){
+        ActiveUser = activeUser; 
+    }
+
 
     public static void userLogin(){
         System.out.println("Enter Username");
@@ -41,6 +44,8 @@ public class LoginManager {
 
 
 
+    //this main method is just here to instantiate objects and pass the objects to the Hashmap users. 
+    //Once a Login page GUI class/method is made that will take in the input, instantiate the objects, and pass those objects is made, it will be tossed away.
     public static void main(String[] args) {
 
         for(int i=0; i<2; i++){
