@@ -10,17 +10,19 @@ public class Product {
     private BufferedImage image;
     private String description;
     private int amount;
+    private String Catagory;
     private User user;
     private static int proID;
 
 
     // Constructor
-    public Product(String name, double price, String description, int amount, String File) {
+    public Product(String name, double price, String description, int amount,String ACatagory, String File) {
         this.productId = proID;
         this.name = name;
         this.price = price;
         this.description = description;
         this.amount = amount;
+        this.Catagory = ACatagory;
         this.user = LoginManager.getActiveUser();
 
         try {
@@ -86,4 +88,10 @@ public class Product {
     public void setUser(User user) {
         this.user = user;
     }
-}
+    public void setCatagory(String cat ){
+        Catagory = cat;
+        }
+    public String getCatagory(){
+        return Catagory;
+    }
+    }
