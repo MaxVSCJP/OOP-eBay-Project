@@ -29,7 +29,7 @@ public class userSQL {
         }
     }
 //INSERTING INTO TABLE
-public void ADD(User use){
+public static void ADD(User use){
     try {
         // Register the JDBC driver
         Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
@@ -55,7 +55,7 @@ catch(SQLException e){
 
 }
 
-public void DELETE(User use){
+public static void DELETE(User use){
     try {
         // Register the JDBC driver
         Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");

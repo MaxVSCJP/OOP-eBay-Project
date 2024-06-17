@@ -34,7 +34,7 @@ public class productSQL {
         }
     }
 //INSERTING INTO TABLE
-public void ADD(Product prod){
+public static void ADD(Product prod, String format){
     try {
         // Register the JDBC driver
         Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
@@ -50,7 +50,7 @@ try(Connection connect = DriverManager.getConnection(connectionpath)){
     statement.setInt(1,prod.getProductId());
     statement.setString(2,prod.getName());
     statement.setDouble(3,prod.getPrice());
-    statement.setBytes(4,image_to_bytes(prod.getImage(),"jnp"));
+    statement.setBytes(4,image_to_bytes(prod.getImage(),format));
     statement.setString(5,prod.getDescription());
     statement.setInt(6,prod.getAmount());
     statement.setString(7, prod.getCatagory());
@@ -64,7 +64,7 @@ catch(SQLException e){
 
 }
 
-public void DELETE(Product prod){
+public static void DELETE(Product prod){
     try {
         // Register the JDBC driver
         Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
@@ -85,7 +85,7 @@ catch(SQLException e){
 }
 }
 
-public static Product catsearch(String cat){
+public static void catsearch(String cat){
     Product prod = null;
     try {
         // Register the JDBC driver
@@ -101,24 +101,24 @@ public static Product catsearch(String cat){
         PreparedStatement statement = connection.prepareStatement("SELECT * FROM product WHERE catagory  = ?");
         statement.setString(1, cat);
         ResultSet result = statement.executeQuery();
-
+        ProdcutListings list = new ProdcutListings();
         while(result.next()){
            byte[] imagex = result.getBytes("imageData");
            String base64String =Base64.getEncoder().encodeToString(imagex);
 
             prod = new Product(result.getString("prodName"), result.getDouble("price"),result.getString("description"),result.getInt("amount"),result.getString(cat),base64String);
-            return prod;
+            list.addToMarket(prod);
         }
         
     } catch (SQLException e) {
         System.out.println("Database not connected");
         e.printStackTrace();
     }
-    return null;
+    
     
 }
 
-public static Product namesearch(String name){
+public static void namesearch(String name){
     Product prod = null;
     try {
         // Register the JDBC driver
@@ -134,20 +134,20 @@ public static Product namesearch(String name){
         PreparedStatement statement = connection.prepareStatement("SELECT * FROM product WHERE name like %?%");
         statement.setString(1, name);
         ResultSet result = statement.executeQuery();
-
+        ProdcutListings list = new ProdcutListings();
         while(result.next()){
            byte[] imagex = result.getBytes("imageData");
            String base64String =Base64.getEncoder().encodeToString(imagex);
 
             prod = new Product(result.getString("prodName"), result.getDouble("price"),result.getString("description"),result.getInt("amount"),result.getString("catagory"),base64String);
-            return prod;
+            list.addToMarket(prod);
         }
         
     } catch (SQLException e) {
         System.out.println("Database not connected");
         e.printStackTrace();
     }
-    return null;
+    
     
 }
 
@@ -173,7 +173,7 @@ public static void upadte(Product prod,String what,String value){
     } 
 }
 
-private byte[] image_to_bytes(BufferedImage image,String format){
+private static byte[] image_to_bytes(BufferedImage image,String format){
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     try {
         ImageIO.write(image, format, bos); // or "png" depending on the image format
