@@ -2,6 +2,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class Orders {
+    private int OrdId;
     private Product product;
     private int quantity;
     private User buyer;
@@ -16,4 +17,35 @@ public class Orders {
         this.buyer = buyer;
         this.orderStatus = orderStatus;
     }
+    public int getOrdId() {
+        return OrdId;
+    }
+
+    public Product getProduct() {
+        return product;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public User getBuyer() {
+        return buyer;
+    }
+
+    public String getOrderStatus() {
+        return orderStatus;
+    }
+
+    public String getOrderDate() {
+        return orderDate;
+    }
+    public String gettime(){
+        return orderDate;
+    }
+
+    public String getETA() {
+        return ETA;
+    }
+
 }
