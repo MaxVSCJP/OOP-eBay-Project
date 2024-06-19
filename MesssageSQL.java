@@ -56,14 +56,14 @@ catch (ClassNotFoundException e) {
         return;
     }  
 try(Connection connect = DriverManager.getConnection(connectionpath)){
-    PreparedStatement statement = connect.prepareStatement("INSERT INTO Message VALUES(?,?,?,?,?,?)");
+    PreparedStatement statement = connect.prepareStatement("INSERT INTO Message (senderusername,reciverusername,content,status,imageData,time) VALUES(?,?,?,?,?,?)");
 
     statement.setString(1,mess.getSender().getUsername());
     statement.setString(2,mess.getRecipient().getUsername());
     statement.setString(3,mess.getContent());
     statement.setString(4,"unread");
     statement.setBytes(5, image_to_bytes(mess.getfile(), "jnp"));
-    statement.setTimestamp(6, mess.gettime());
+    statement.setString(6, mess.gettime());
    
     statement.executeUpdate();
     statement.close();
