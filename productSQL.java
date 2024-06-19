@@ -123,7 +123,7 @@ public static void catsearch(String cat){
            byte[] imagex = result.getBytes("imageData");
            String base64String =Base64.getEncoder().encodeToString(imagex);
 
-            prod = new Product(result.getString("prodName"), result.getDouble("price"),result.getString("description"),result.getInt("amount"),result.getString(cat),base64String);
+            prod = new Product(result.getString("prodName"), result.getDouble("price"),result.getString("description"),result.getInt("amount"),result.getString("catagory"),base64String);
             list.addToMarket(prod);
         }
         statement.close();

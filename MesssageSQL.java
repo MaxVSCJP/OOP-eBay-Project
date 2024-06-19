@@ -115,7 +115,6 @@ public static void retrive(){
     try (Connection connection = DriverManager.getConnection(connectionpath)) {
     
         PreparedStatement statement = connection.prepareStatement("SELECT * FROM Message");
-        statement.setString(1, "unread");
         ResultSet result = statement.executeQuery();
         while(result.next()){
             if (result.getBytes("imagedata") != null){
