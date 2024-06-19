@@ -6,7 +6,7 @@ import java.awt.image.*;
 
 import javax.imageio.ImageIO;
 public class MesssageSQL {
-    static String connectionpath = "jdbc:sqlserver://LAPTOP-RRR8Q3CJ:1433;Database=CTC_DEMO ;user=lovemehateyou;password=alazar11821996;trustServerCertificate=true;";
+    static String connectionpath = "jdbc:sqlserver://LAPTOP-RRR8Q3CJ:1433;Database=test1 ;user=lovemehateyou;password=alazar11821996;trustServerCertificate=true;";
     //CREATEING A tabel
     public static void createTable(){
         try {
@@ -21,11 +21,22 @@ public class MesssageSQL {
 
         try(Connection connect = DriverManager.getConnection(connectionpath)){
             
-            PreparedStatement statment = connect.prepareStatement(
-            "create table Message(senderusername varchar(20) unique not null, reciverusername varchar(20) unique not null, content varchar(200), statues varchar(20), imageData VARBINARY(MAX), time DateTime )"
+            PreparedStatement statement = connect.prepareStatement(
+                "create table Message("+
+                "messageID INT IDENTITY(1,1) PRIMARY KEY,"+
+                "senderusername varchar(20) unique NOT NULL,"+
+                "reciverusername varchar(20) unique NOT NULL,"+
+                "content varchar(200),"+
+                "status varchar(20), "+
+                "imageData VARBINARY(MAX),"+
+                "time DateTime,"+
+                "FOREIGN KEY (senderusername) REFERENCES users(username),"+
+                "FOREIGN KEY (reciverusername) REFERENCES users(username))"
              );
-            statment.executeUpdate();
-            System.out.println("DATABASE CREATED");
+            statement.executeUpdate();
+            statement.close();
+            connect.close();
+            System.out.println("DATABASE CREATED" );
 
         }
         catch(SQLException E){
@@ -45,7 +56,7 @@ catch (ClassNotFoundException e) {
         return;
     }  
 try(Connection connect = DriverManager.getConnection(connectionpath)){
-    PreparedStatement statement = connect.prepareStatement("INSERT INTO message VALUES(?,?,?,?,?,?)");
+    PreparedStatement statement = connect.prepareStatement("INSERT INTO Message VALUES(?,?,?,?,?,?)");
 
     statement.setString(1,mess.getSender().getUsername());
     statement.setString(2,mess.getRecipient().getUsername());
@@ -55,6 +66,8 @@ try(Connection connect = DriverManager.getConnection(connectionpath)){
     statement.setTimestamp(6, mess.gettime());
    
     statement.executeUpdate();
+    statement.close();
+    connect.close();
 }
 catch(SQLException e){
     System.out.println("Connection failed");
@@ -74,11 +87,13 @@ catch (ClassNotFoundException e) {
         return;
     }  
 try(Connection connect = DriverManager.getConnection(connectionpath)){
-    PreparedStatement statement = connect.prepareStatement("DELETE FROM message WHERE senderusername = ? and  recipientusername = ?");
+    PreparedStatement statement = connect.prepareStatement("DELETE FROM Message WHERE senderusername = ? and  recipientusername = ?");
 
     statement.setString(1, mess.getSender().getUsername());
     statement.setString(2, mess.getRecipient().getUsername());
     statement.executeUpdate();
+    statement.close();
+    connect.close();
 }
 catch(SQLException e){
     System.out.println("Connection failed");
@@ -99,23 +114,26 @@ public static void retrive(){
 
     try (Connection connection = DriverManager.getConnection(connectionpath)) {
     
-        PreparedStatement statement = connection.prepareStatement("SELECT * FROM message WHERE statues  = ?");
+        PreparedStatement statement = connection.prepareStatement("SELECT * FROM Message");
         statement.setString(1, "unread");
         ResultSet result = statement.executeQuery();
         while(result.next()){
-            byte[] imagex = result.getBytes("imageData");
-            BufferedImage image = null;
-            try {
-                
-                ByteArrayInputStream bis = new ByteArrayInputStream(imagex);
-                image = ImageIO.read(bis);
-            } catch (IOException e) {
-                System.out.println("Error converting byte array to BufferedImage");
-                e.printStackTrace();
+            if (result.getBytes("imagedata") != null){
+                byte[] imagex = result.getBytes("imageData");
+                BufferedImage image = null;
+                try {
+                    
+                    ByteArrayInputStream bis = new ByteArrayInputStream(imagex);
+                    image = ImageIO.read(bis);
+                    text.setimage(image);
+                } 
+                catch (IOException e) {
+                    System.out.println("Error converting byte array to BufferedImage");
+                    e.printStackTrace();
+                }
             }
            
-
-
+           
            String senderusername = result.getString("senderusername");
            String recipientusername = result.getString("recipientusername");
 
@@ -123,9 +141,9 @@ public static void retrive(){
            User recipient = getuser(recipientusername);
 
            text = new Massage(sender, recipient,result.getString("content"));
-           text.setimage(image);
            chat.addmess(text);
-
+           statement.close();
+           connection.close();
         }
         
     } catch (SQLException e) {
@@ -148,15 +166,43 @@ public static void edit(Massage mess,String value){
 
     try (Connection connection = DriverManager.getConnection(connectionpath)) {
     
-    PreparedStatement statment = connection.prepareStatement("UPDATE message SET content = ? WHERE senderusername = ? and reciverusername = ?" );
-        statment.setString(1, value);
-        statment.setString(2, mess.getSender().getUsername());
-        statment.setString(3, mess.getRecipient().getUsername());
+    PreparedStatement statement = connection.prepareStatement("UPDATE Message SET content = ? WHERE senderusername = ? and reciverusername = ?" );
+        statement.setString(1, value);
+        statement.setString(2, mess.getSender().getUsername());
+        statement.setString(3, mess.getRecipient().getUsername());
+        statement.executeUpdate();
+        statement.close();
+        connection.close();
 
     } catch (SQLException e) {
         System.out.println("Database not connected");
         e.printStackTrace();
     } 
+}
+
+public static int Notification(){
+    try {
+        // Register the JDBC driver
+        Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+    } catch (ClassNotFoundException e) {
+        System.out.println("JDBC driver not found");
+        e.printStackTrace();  
+    }
+
+    try (Connection connection = DriverManager.getConnection(connectionpath)){
+        PreparedStatement statement2 = connection.prepareStatement("Select count(*) as  message_count from Message where status = ? ");
+           statement2.setString(1, "unread");
+           ResultSet result2 = statement2.executeQuery();
+           int notif = result2.getInt("message_count");
+           statement2.close();
+            connection.close();
+           return notif;
+    }
+    catch (SQLException e) {
+        System.out.println("Database not connected");
+        e.printStackTrace();
+    }
+    return 0;
 }
 
 private static byte[] image_to_bytes(BufferedImage image,String format){
@@ -183,12 +229,14 @@ private static User getuser(String username){
     }
 
     try (Connection connection = DriverManager.getConnection(connectionpath)){
-        PreparedStatement statement = connection.prepareStatement("select * from user where username = ?");
+        PreparedStatement statement = connection.prepareStatement("select * from users where username = ?");
         statement.setString(1, username);
         ResultSet result = statement.executeQuery();
         if(result.next()){
             retrievedCust = new User(result.getString("username"),result.getString("name"),result.getString("email"),result.getDouble("balance"));
         }
+        statement.close();
+        connection.close();
              
     }
     catch (SQLException e) {

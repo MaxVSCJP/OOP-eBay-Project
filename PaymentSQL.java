@@ -1,9 +1,9 @@
+
 import java.sql.*;
 
-public class userSQL {
+public class PaymentSQL {
     static String connectionpath = "jdbc:sqlserver://LAPTOP-RRR8Q3CJ:1433;Database=test1 ;user=lovemehateyou;password=alazar11821996;trustServerCertificate=true;";
     //CREATEING A tabel
-
     public static void createTable(){
         try {
             // Register the JDBC driver
@@ -18,16 +18,17 @@ public class userSQL {
         try(Connection connect = DriverManager.getConnection(connectionpath)){
             
             PreparedStatement statement = connect.prepareStatement(
-                "create table users("+
-                "username varchar(20) primary key,"+
-                "Fullname varchar(30),"+
-                "Email varchar(50),"+
-                "Balance Float)" 
+                "create table Payment("+
+                "paymentID INT IDENTITY(1,1) PRIMARY KEY,"+
+                "buyerusername varchar(20) unique NOT NULL,"+
+                "sellerusername varchar(20) unique NOT NULL,"+
+                "money Float,"+
+                ")"
              );
             statement.executeUpdate();
             statement.close();
             connect.close();
-            System.out.println("DATABASE CREATED");
+            System.out.println("DATABASE CREATED" );
 
         }
         catch(SQLException E){
@@ -36,7 +37,7 @@ public class userSQL {
         }
     }
 //INSERTING INTO TABLE
-public static void ADD(User use){
+public static void ADD(double amount,User buyer,User seller){
     try {
         // Register the JDBC driver
         Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
@@ -47,12 +48,12 @@ catch (ClassNotFoundException e) {
         return;
     }  
 try(Connection connect = DriverManager.getConnection(connectionpath)){
-    PreparedStatement statement = connect.prepareStatement("INSERT INTO users VALUES(?,?,?,?)");
+    PreparedStatement statement = connect.prepareStatement("INSERT INTO Payment VALUES(?,?,?)");
 
-    statement.setString(1,use.getUsername());
-    statement.setString(2,use.getName());
-    statement.setString(3,use.getEmail());
-    statement.setDouble(4,use.getBalance());
+    statement.setString(1,buyer.getUsername());
+    statement.setString(2,seller.getUsername());
+    statement.setDouble(3,amount);
+   
     statement.executeUpdate();
     statement.close();
     connect.close();
@@ -64,7 +65,7 @@ catch(SQLException e){
 
 }
 
-public static void DELETE(User use){
+public static void DELETE(User buyer, User seller){
     try {
         // Register the JDBC driver
         Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
@@ -75,11 +76,13 @@ catch (ClassNotFoundException e) {
         return;
     }  
 try(Connection connect = DriverManager.getConnection(connectionpath)){
-    PreparedStatement statement = connect.prepareStatement("DELETE FROM users WHERE username = ?");
-    statement.setString(1, use.getUsername());
-    statement.executeUpdate();
+    PreparedStatement statement = connect.prepareStatement("DELETE FROM Payment WHERE buyerusername = ? and  sellerusername = ?");
+
+    statement.setString(1, buyer.getUsername());
+    statement.setString(2, seller.getUsername());
     statement.executeUpdate();
     statement.close();
+    connect.close();
 }
 catch(SQLException e){
     System.out.println("Connection failed");
@@ -87,8 +90,8 @@ catch(SQLException e){
 }
 }
 
-public static User search(User cust){
-    User retrievedCust = null;
+public static void retrive(User buyer , User seller){
+     
     try {
         // Register the JDBC driver
         Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
@@ -100,44 +103,21 @@ public static User search(User cust){
 
     try (Connection connection = DriverManager.getConnection(connectionpath)) {
     
-        PreparedStatement statement = connection.prepareStatement("SELECT * FROM users WHERE username = ?");
-        statement.setString(1, cust.getUsername());
+        PreparedStatement statement = connection.prepareStatement("SELECT * FROM Payment where buyerusername = ? and sellerusername = ?");
+        statement.setString(1, buyer.getUsername() );
+        statement.setString(2, seller.getUsername());
         ResultSet result = statement.executeQuery();
-    if (result.next()) {
-        retrievedCust = new User(result.getString("username"),result.getString("name"),result.getString("email"),result.getDouble("balance"));
-        statement.executeUpdate();
-        statement.close();
+       if(result.next()){
+           
+       }
+           statement.close();
+           connection.close();
+        }
         
-    }
-    } catch (SQLException e) {
+     catch (SQLException e) {
         System.out.println("Database not connected");
         e.printStackTrace();
     }
-    return retrievedCust; 
-}
-
-public static void upadte(User use,String what,String value){
-    try {
-        // Register the JDBC driver
-        Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-    } catch (ClassNotFoundException e) {
-        System.out.println("JDBC driver not found");
-        e.printStackTrace();
-        return;
-    }
-
-    try (Connection connection = DriverManager.getConnection(connectionpath)) {
     
-    PreparedStatement statement = connection.prepareStatement("UPDATE users SET " + what + " = ? WHERE username = ?" );
-        statement.setString(1, value);
-        statement.setString(2, use.getUsername());
-        statement.executeUpdate();
-        statement.executeUpdate();
-        statement.close();
-
-    } catch (SQLException e) {
-        System.out.println("Database not connected");
-        e.printStackTrace();
-    } 
 }
 }

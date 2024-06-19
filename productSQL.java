@@ -6,7 +6,7 @@ import java.awt.image.*;
 import java.io.*;
 
 public class productSQL {
-    static String connectionpath = "jdbc:sqlserver://LAPTOP-RRR8Q3CJ:1433;Database=CTC_DEMO ;user=lovemehateyou;password=alazar11821996;trustServerCertificate=true;";
+    static String connectionpath = "jdbc:sqlserver://LAPTOP-RRR8Q3CJ:1433;Database=test1 ;user=lovemehateyou;password=alazar11821996;trustServerCertificate=true;";
     //CREATEING A tabel
     public static void createTable(){
         try {
@@ -21,10 +21,21 @@ public class productSQL {
 
         try(Connection connect = DriverManager.getConnection(connectionpath)){
             
-            PreparedStatement statment = connect.prepareStatement(
-            "create table product(productID int unique not null primary key , prodname varchar(20) not null , price double not null,imageData VARBINARY(MAX),description varchar(200),amount int not null , catagory varchar(20) not null)"
+            PreparedStatement statement = connect.prepareStatement(
+                "CREATE TABLE product (" +
+                "productID INT PRIMARY KEY, " +
+                "sellerusername varchar(20) NOT NULL,"+
+                "prodname VARCHAR(30), " +
+                "price Float," +
+                "imageData VARBINARY(MAX), " +
+                "description VARCHAR(100), " +
+                "amount INT, " +
+                "catagory VARCHAR(20) NOT NULL)"
+                /* "FOREIGN KEY (sellerusername) REFERENCES users(sellerusername))" */
              );
-            statment.executeUpdate();
+            statement.executeUpdate();
+            statement.close();
+            connect.close();
             System.out.println("DATABASE CREATED");
 
         }
@@ -45,17 +56,21 @@ catch (ClassNotFoundException e) {
         return;
     }  
 try(Connection connect = DriverManager.getConnection(connectionpath)){
-    PreparedStatement statement = connect.prepareStatement("INSERT INTO product VALUES(?,?,?,?,?,?,?)");
-
-    statement.setInt(1,prod.getProductId());
-    statement.setString(2,prod.getName());
-    statement.setDouble(3,prod.getPrice());
-    statement.setBytes(4,image_to_bytes(prod.getImage(),format));
-    statement.setString(5,prod.getDescription());
-    statement.setInt(6,prod.getAmount());
-    statement.setString(7, prod.getCatagory());
+    PreparedStatement statement = connect.prepareStatement("INSERT INTO product VALUES(?,?,?,?,?,?,?,?)");
+    statement.setInt(1, prod.getProductId());
+    statement.setString(2,prod.getUser().getUsername());
+    statement.setString(3,prod.getName());
+    statement.setDouble(4,prod.getPrice());
+    if(format != null){
+        statement.setBytes(5,image_to_bytes(prod.getImage(),format));
+    }
+    statement.setString(6,prod.getDescription());
+    statement.setInt(7,prod.getAmount());
+    statement.setString(8, prod.getCatagory());
 
     statement.executeUpdate();
+    statement.close();
+    connect.close();
 }
 catch(SQLException e){
     System.out.println("Connection failed");
@@ -78,6 +93,8 @@ try(Connection connect = DriverManager.getConnection(connectionpath)){
     PreparedStatement statement = connect.prepareStatement("DELETE FROM product WHERE productID = ?");
     statement.setInt(1, prod.getProductId());
     statement.executeUpdate();
+    statement.close();
+    connect.close();
 }
 catch(SQLException e){
     System.out.println("Connection failed");
@@ -109,6 +126,8 @@ public static void catsearch(String cat){
             prod = new Product(result.getString("prodName"), result.getDouble("price"),result.getString("description"),result.getInt("amount"),result.getString(cat),base64String);
             list.addToMarket(prod);
         }
+        statement.close();
+        connection.close();
         
     } catch (SQLException e) {
         System.out.println("Database not connected");
@@ -142,6 +161,8 @@ public static void namesearch(String name){
             prod = new Product(result.getString("prodName"), result.getDouble("price"),result.getString("description"),result.getInt("amount"),result.getString("catagory"),base64String);
             list.addToMarket(prod);
         }
+        statement.close();
+        connection.close();
         
     } catch (SQLException e) {
         System.out.println("Database not connected");
@@ -163,9 +184,12 @@ public static void upadte(Product prod,String what,String value){
 
     try (Connection connection = DriverManager.getConnection(connectionpath)) {
     
-    PreparedStatement statment = connection.prepareStatement("UPDATE product SET " + what + " = ? WHERE prouctID = ?" );
-        statment.setString(1, value);
-        statment.setInt(2, prod.getProductId());
+    PreparedStatement statement = connection.prepareStatement("UPDATE product SET " + what + " = ? WHERE prouctID = ?" );
+        statement.setString(1, value);
+        statement.setInt(2, prod.getProductId());
+        statement.executeUpdate();
+        statement.close();
+        connection.close();
 
     } catch (SQLException e) {
         System.out.println("Database not connected");

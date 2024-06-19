@@ -3,7 +3,7 @@ import java.sql.*;
 public class loginSQL {
    static String use1;
     static String pa1;
-    static String connectionpath = "jdbc:sqlserver://LAPTOP-RRR8Q3CJ:1433;Database=CTC_DEMO ;user=lovemehateyou;password=alazar11821996;trustServerCertificate=true;";
+    static String connectionpath = "jdbc:sqlserver://LAPTOP-RRR8Q3CJ:1433;Database= test1 ;user=lovemehateyou;password=alazar11821996;trustServerCertificate=true;";
     //CREATEING A DATABASE
     public static void create(){
         try {
@@ -17,8 +17,17 @@ public class loginSQL {
 
         try(Connection connect = DriverManager.getConnection(connectionpath)){
             
-            PreparedStatement statment = connect.prepareStatement("create table log(username varchar(20) unique,password varchar(20) not null,Status varchar(30) not null)");
-            statment.executeUpdate();
+            PreparedStatement statement = connect.prepareStatement(
+                "create table log("+
+                "username varchar(20) primary key,"+
+                "password varchar(20)  NOT NULL,"+
+                "Status varchar(30)  NOT NULL,"+
+                "FOREIGN KEY (username) REFERENCES users(username),"
+            );
+
+            statement.executeUpdate();
+            statement.close();
+            connect.close();
             System.out.println("DATABASE CREATED");
 
         }
@@ -30,7 +39,7 @@ public class loginSQL {
 
 
     }
-    //ADDING MOVIES TO THE DATABASE
+    
     public static boolean signup(String user, String pass){
         try {
             // Register the JDBC driver
@@ -57,6 +66,8 @@ public class loginSQL {
         
 
         statement.executeUpdate();
+        statement.close();
+        connect.close();
         System.out.println("RECORDES ADDED");
             
         connect.close();
@@ -91,7 +102,7 @@ public static void login(String user,String pass){
                 LoginManager.setActiveUser(uu);
              }    
         }
-       
+        statement.close();
         connect.close();
         
     }
@@ -101,32 +112,6 @@ public static void login(String user,String pass){
     
     }
    
-}
-
-//DROP THE DATABASE TABLE
-public static void Drop(){
-    try {
-        // Register the JDBC driver
-        Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-    } catch (ClassNotFoundException e) {
-        System.out.println("JDBC driver not found");
-        e.printStackTrace();
-        return;
-    }
-
-    try(Connection connect = DriverManager.getConnection(connectionpath)){
-        
-        PreparedStatement statment = connect.prepareStatement("drop table Movies");
-        statment.executeUpdate();
-        System.out.println("DATABASE dropped");
-
-    }
-    catch(SQLException E){
-        System.out.println("couldn't deop");
-        E.printStackTrace();
-        return;
-    }
-
 }
 
 private static User finduser(String username){
@@ -139,14 +124,16 @@ private static User finduser(String username){
     }
 
     try(Connection connect = DriverManager.getConnection(connectionpath)){
-        PreparedStatement statment = connect.prepareStatement("select * from user");
-        ResultSet result = statment.executeQuery();
+        PreparedStatement statement = connect.prepareStatement("select * from users");
+        ResultSet result = statement.executeQuery();
         while(result.next()){
             if(result.getString("username").equals(username)){
                 User u = new User(result.getString("username"),result.getString("name"),result.getString("Email"),result.getDouble("Balance"));
                 return u;
             }
-        } 
+        }
+        statement.close();
+        connect.close(); 
     }
     catch(SQLException e){
         System.out.println("COULDN'T CONNECT");
