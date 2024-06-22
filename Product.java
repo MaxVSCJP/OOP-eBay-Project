@@ -5,15 +5,18 @@ import java.util.Formatter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Scanner;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 
 public class Product {
     private int productId;
     private String name;
     private double price;
-    private BufferedImage image;
+    private String image;
     private String description;
     private int amount;
-    private User user;
+    private User productOwner;
     private static int proID;
     static{
         try{
@@ -27,27 +30,22 @@ public class Product {
     }
 
     private String category;
+    private double BidPrice;
+    private String auctionExpireTime;
+    private User highestBidder;
 
 
-    
 
-    // Constructor
-    public Product(String name, double price, String description, int amount, String category, String File) {
+    // Constructor for Bidding and Buy Now
+    public Product(String name, double price, String description, int amount, String category, String image, double BidPrice) {
         this.productId = proID;
         this.name = name;
         this.price = price;
         this.description = description;
         this.amount = amount;
-        this.user = LoginManager.getActiveUser();
+        this.productOwner = LoginManager.getActiveUser();
         this.category = category;
-
-        try {
-            this.image = ImageIO.read(new File(File));
-        } 
-        catch (IOException e) {
-            this.image = null;
-            System.err.println("Sorry can't access the file");
-        }
+        this.image = image;
 
         proID++;
         try{
@@ -61,7 +59,24 @@ public class Product {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        this.BidPrice = BidPrice;
+        this.auctionExpireTime = LocalDateTime.now().plusDays(7).format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"));
+        this.highestBidder = LoginManager.getActiveUser();
 
+    }
+
+    public Product(int productId, String name, double price, String description, int amount, String category, String image, double bidPrice, User productOwner, String auctionExpireTime, User highestBidder) {
+        this.productId = productId;
+        this.name = name;
+        this.price = price;
+        this.image = image;
+        this.description = description;
+        this.amount = amount;
+        this.productOwner = productOwner;
+        this.category = category;
+        this.BidPrice = bidPrice;
+        this.auctionExpireTime = auctionExpireTime;
+        this.highestBidder = highestBidder;
     }
 
     // Getters and Setters
@@ -85,11 +100,11 @@ public class Product {
         this.price = price;
     }
 
-    public BufferedImage getImage() {
+    public String getImage() {
         return image;
     }
 
-    public void setImage(BufferedImage image) {
+    public void setImage(String image) {
         this.image = image;
     }
 
@@ -109,12 +124,12 @@ public class Product {
         this.amount = amount;
     }
 
-    public User getUser() {
-        return user;
+    public User getProductOwner() {
+        return productOwner;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setProductOwner(User owner) {
+        this.productOwner = owner;
     }
 
     public String getCategory(){
@@ -123,5 +138,25 @@ public class Product {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public double getBidPrice(){
+        return BidPrice;
+    }
+
+    public void setBidPrice(double price){
+        this.BidPrice = price;
+    }
+
+    public User getHighestBidder() {
+        return highestBidder;
+    }
+
+    public void setHighestBidder(User bidder) {
+        this.highestBidder = bidder;
+    }
+
+    public String getAuctionExpireTime() {
+        return auctionExpireTime;
     }
 }

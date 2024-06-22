@@ -25,7 +25,7 @@ public class ProdcutListings {
         User users = LoginManager.getActiveUser(); 
         ArrayList<Product> result = new ArrayList<>();
         for (Product prod : Market){
-            if (prod.getUser().equals(users)){
+            if (prod.getProductOwner().equals(users)){
                 result.add(prod);
             }
         }
