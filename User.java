@@ -3,7 +3,8 @@ public class User {
     private String name;
     private String email;
     private double balance;
-    private int notificationCount = 0;
+
+//    private int notificationCount = 0;
 
     public User(String Username, String name, String email, double balance){
         this.Username = Username;
@@ -36,7 +37,7 @@ public class User {
         this.balance -= balance;
     }
 
-    public void addNotification(){
+    /*public void addNotification(){
         notificationCount++;
     }
 
@@ -44,5 +45,5 @@ public class User {
         if(notificationCount > 0){
             notificationCount--;
         }
-    }
+    }*/
 }
